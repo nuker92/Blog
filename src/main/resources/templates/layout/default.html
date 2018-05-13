@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <a class="navbar-brand col-sm-1" href="/home">
+        Homepage
+    </a>
+    <div class="form-inline my-2 col-sm-7 my-lg-0">
+        <input class="form-control col-sm-8  mr-sm-2" id="searchInput" onsubmit="searchForPosts()" type="search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-success my-2 my-sm-0" type="button" onclick="searchForPosts()">Search</button>
+    </div>
+    <div class="collapse navbar-collapse col-sm-4" id="navbarText">
+        <ul class="navbar-nav mr-auto">
+        </ul>
+        <div class="navbar-right">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <a class="nav-link" href="/myProfile" th:text="#{myProfile}">My profile</a>
+                </li>
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link" href="/registration" th:text="#{register}">Register</a>
+                </li>
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link" href="/login" th:text="#{signIn}">Sign in</a>
+                </li>
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <a class="nav-link" href="/logout" th:text="#{logout}">Sign out</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+<section layout:fragment="content">
+    <p>Page content</p>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <p class="float-right">
+            <a href="#">Back to top</a>
+        </p>
+        <p>The site was created for testing the spring boot framework.</p>
+        <p><a href="https://projects.spring.io/spring-boot/">Spring boot homepage</a></p>
+    </div>
+</footer>
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/jquery.validate.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.17.0/dist/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-dateFormat/1.0/jquery.dateFormat.min.js"></script>
+<script type="text/javascript" layout:fragment="script">
+</script>
+<script type="text/javascript">
+    function searchForPosts() {
+        var tagCriteria = $('#searchInput').val();
+        tagCriteria = tagCriteria.replace(/#/g, "%23");
+        tagCriteria = tagCriteria.replace(/@/g, "");
+        window.location.href = "/search?tagCriteria=" + tagCriteria;
+
+    }
+
+    //listener if user press enter on searchInput
+    $("#searchInput").keypress(function(e) {
+        if(e.keyCode == 13) {
+            searchForPosts();
+        }
+    });
+
+</script>
+</body>
+</html>

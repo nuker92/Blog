@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="layout/default">
+<head>
+    <title>My profile</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <div class="container-fluid bg-light py-3">
+        <div class="row">
+            <div class="col-md-6 mx-auto">
+                <div class="card card-body">
+                    <form th:action="@{/myProfile}" th:object="${user}" method="post">
+                        <h3 class="text-center mb-4" th:text="#{myProfile}">My profile</h3>
+                        <fieldset>
+                            <div class="form-group">
+                                <label for="firstName" th:text="#{firstName}">first name</label>
+                                <input class="form-control input-lg" th:placeholder="#{firstName}" type="text"
+                                       id="firstName" th:field="${user.firstName}">
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName" th:text="#{lastName}">last name</label>
+                                <input class="form-control input-lg" th:placeholder="#{lastName}" type="text"
+                                       id="lastName" th:field="${user.lastName}">
+                            </div>
+                            <button class="btn btn-lg btn-outline-primary btn-block" type="submit" name="action" th:text="#{update}">
+                                update
+                            </button>
+                        </fieldset>
+                    </form>
+                    <form class="py-2" id="changePasswordForm" th:action="@{/changePassword}" th:object="${user}" method="post">
+                        <fieldset>
+                            <div class="form-group">
+                                <label for="password" th:text="#{password}">Password</label>
+                                <input class="form-control input-lg" value="" th:placeholder="#{password}" type="password"
+                                       id="password" th:field="${user.password}">
+                            </div>
+                            <div class="form-group">
+                                <label for="cpassword" th:text="#{passwordConfirm}">Confirm password</label>
+                                <input class="form-control input-lg" th:placeholder="#{passwordConfirm}" type="password"
+                                       id="cpassword" name="cpassword" onblur="check(this)" oninput="check(this)">
+                            </div>
+                            <button class="btn btn-lg btn-outline-primary btn-block" type="submit" name="action" th:text="#{passwordChange}">
+                                update
+                            </button>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script layout:fragment="script">
+    $('#changePasswordForm').validate({
+        rules: {
+            password: {
+                required : true,
+                minlength: 3
+            },
+            cpassword: {
+                required: true,
+                equalTo: "#password"
+            }
+        },
+        messages: {
+            password: {
+                required : "Password is required",
+                minlength: "Your password must contain at least 3 characters."
+            },
+            cpassword:{
+                required: "Fill this field.",
+                equalTo: "Passwords must match."
+            }
+        },
+        highlight: function(element) {
+            $(element).closest('.form-control').removeClass('is-valid').addClass('is-invalid');
+        },
+        unhighlight: function(element) {
+            $(element).closest('.form-control').removeClass('is-invalid').addClass('is-valid');
+        },
+        errorElement : 'div',
+        errorPlacement: function(error, element) {
+            var placement = $(element).data('error');
+            if (placement) {
+                $(placement).append(error)
+            } else {
+                error.insertAfter(element);
+            }
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="layout/default">
+<head>
+    <title>Register</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+
+    <div th:if="${(param.success != null) and (param.success[0] == 'true')}" class="container-fluid bg-light py-3">
+            <div class="col-6 mx-auto alert alert-success">
+                <h6 th:text="#{successUserRegister}">Registration successfull!</h6>
+                <h6><a href="/login" th:text="#{goToSignInPage}">go to signin page</a></h6>
+            </div>
+    </div>
+
+
+    <div class="container-fluid bg-light py-3">
+        <div class="row">
+            <div class="col-md-6 mx-auto">
+                <div class="card card-body">
+                    <form id="registerForm" th:object="${user}" th:action="@{/registration}" method="post">
+                        <h3 class="text-center mb-4">Sign-up</h3>
+                        <fieldset>
+                            <div class="form-group">
+                                <input class="form-control input-lg" th:placeholder="#{email}" id="email" type="email"
+                                       th:field="${user.email}">
+                                <div th:errors="*{email}" class="text-danger">error</div>
+                            </div>
+                            <div class="form-group has-error">
+                                <input class="form-control input-lg" th:placeholder="#{nick}" type="text" id="nick"
+                                       th:field="${user.nick}">
+                                <div th:errors="*{nick}" class="text-danger">error</div>
+                            </div>
+                            <div class="form-group">
+                                <input class="form-control input-lg" th:placeholder="#{firstName}" type="text"
+                                       id="firstName" th:field="${user.firstName}">
+                            </div>
+                            <div class="form-group">
+                                <input class="form-control input-lg" th:placeholder="#{lastName}" type="text"
+                                       id="lastName" th:field="${user.lastName}">
+                            </div>
+                            <div class="form-group">
+                                <input class="form-control input-lg" th:placeholder="#{password}"
+                                       th:field="${user.password}" type="password">
+                                <div th:errors="*{password}" class="text-danger">error</div>
+                            </div>
+                            <div class="form-group">
+                                <input class="form-control input-lg" id="cpassword" type="password" name="cpassword"
+                                       placeholder="Confirm Password" onblur="check(this)" oninput="check(this)">
+                            </div>
+                            <button class="btn btn-lg btn-primary btn-block" th:text="#{submit}" name="action"
+                                    type="submit">
+                                submit
+                            </button>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<script layout:fragment="script">
+    $('#registerForm').validate({
+        rules: {
+            email: {
+                required : true,
+                email: true,
+                remote : {
+                    url: '/registration/availableEmail',
+                    type: "get",
+                    data: {
+                        email: function() {
+                            return $("#email").val();
+                        }
+                    }
+                }
+            },
+            nick: {
+                required : true,
+                minlength: 3,
+                maxlength: 25,
+                remote : {
+                    url: '/registration/availableNick',
+                    type: "get",
+                    data: {
+                        email: function() {
+                            return $("#nick").val();
+                        }
+                    }
+                }
+            },
+            password: {
+                required : true,
+                minlength: 3
+            },
+            cpassword: {
+                required: true,
+                equalTo: "#password"
+            }
+        },
+        messages: {
+            email: {
+                remote: "Such username already exists!"
+            },
+            nick: {
+                required : "Nickname is required",
+                minlength: "Your nickname must contain at least 3 characters.",
+                maxlength: "Max nickname length is 25 characters.",
+                remote: "Such nickname already exists!"
+            },
+            password: {
+                required : "Password is required",
+                minlength: "Your password must contain at least 3 characters."
+            },
+            cpassword:{
+                required: "Fill this field.",
+                equalTo: "Passwords must match."
+            }
+        },
+        highlight: function(element) {
+            $(element).closest('.form-control').removeClass('is-valid').addClass('is-invalid');
+        },
+        unhighlight: function(element) {
+            $(element).closest('.form-control').removeClass('is-invalid').addClass('is-valid');
+        },
+        errorElement : 'div',
+        errorPlacement: function(error, element) {
+            var placement = $(element).data('error');
+            if (placement) {
+                $(placement).append(error)
+            } else {
+                error.insertAfter(element);
+            }
+        }
+    });
+</script>
+</body>
+</html>

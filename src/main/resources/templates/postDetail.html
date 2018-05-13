@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.w3.org/1999/xhtml"
+      layout:decorator="layout/default">
+<head>
+    <title>Post details</title>
+</head>
+<body>
+<div  layout:fragment="content">
+
+    <div class="container-fluid bg-light py-3">
+        <ul class="list-group col-10 mx-auto py-3" id="postList">
+            <li th:id="post + ${post.id}" class="list-group-item" >
+                <div class="row justify-content-between">
+                    <div class="col-4">
+                        <a th:href="@{/profile/} + ${post.user.nick}">
+                            <h5 th:text="${post.user.nick}">
+                                User
+                            </h5>
+                        </a>
+                    </div>
+                    <div class="col-2">
+                        <div class="row">
+                            <div class="col-10">
+                                <div class="float-right" th:id="postRating + ${post.id}" th:text="${post.rating.size()}">\
+                                    rating
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <div class="float-right">
+                                    <img th:if="${loggedUserNick != null and loggedUserNick != post.user.nick}"
+                                         th:src="@{/image/plus.png}"
+                                         class="rounded"
+                                         th:onclick="'vote(' + ${post.id} + ', \'POST\')'"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div th:text="${post.description}">
+                </div>
+                <div th:text="${#temporals.format(post.dateOfAddition, 'HH:mm dd-MM-yyyy')}"
+                     class="text-info">
+                    dateOfAddition
+                </div>
+                <div class="row py-2">
+                    <div class="col-1">
+                        <button class="btn btn-outline-primary btn-sm" th:id="'buttonShowAddComentForm' + ${post.id}"
+                                th:text="#{reply}"
+                                th:onclick="'showAddComentForm(' + ${post.id} +')'">
+                        </button>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-1">
+                    </div>
+                    <div class="col-11">
+                        <ul class="list-group" th:id="commentList + ${post.id}">
+                            <li class="list-group-item" th:each="comment : ${post.comments}">
+                                <div class="row justify-content-between">
+                                    <div class="col-4">
+                                        <a th:href="@{/profile/} + ${comment.user.nick}">
+                                            <h5 th:text="${comment.user.nick}">
+                                                User
+                                            </h5>
+                                        </a>
+                                    </div>
+                                    <div class="col-2">
+                                        <div class="row">
+                                            <div class="col-9">
+                                                <div class="float-right" th:id="commentRating + ${comment.id}" th:text="${comment.rating.size()}">\
+                                                    rating
+                                                </div>
+                                            </div>
+                                            <div class="col-1">
+                                                <div class="float-right">
+                                                    <img th:if="${loggedUserNick != null and loggedUserNick != comment.user.nick}"
+                                                         th:src="@{/image/plus.png}"
+                                                         class="rounded"
+                                                         th:onclick="'vote(' + ${comment.id} + ', \'COMMENT\')'"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div th:text="${comment.description}">
+                                </div>
+                                <div th:text="${#temporals.format(comment.dateOfAddition, 'HH:mm dd-MM-yyyy')}"
+                                     class="text-info">
+                                    dateOfAddition
+                                </div>
+                            </li>
+                        </ul>
+                        <br>
+                        <form style="display: none" th:id="addCommentForm + ${post.id}" th:object="${comment}">
+                            <div class="form-group">
+                                <textarea class="form-control" th:id="'newCommentDescription' + ${post.id}"
+                                          th:field="${comment.description}"></textarea>
+                                <small class="form-text text-muted" th:text="#{typeNewComment}">comment help</small>
+                            </div>
+                            <div class="text-center">
+                                <button class="btn btn-primary" th:onclick="'addComment(' + ${post.id} +')'"
+                                        type="button"
+                                        th:text="#{submit}">Submit
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </li>
+        </ul>
+
+    </div>
+
+</div>
+<script layout:fragment="script">
+
+    function showAddComentForm(id) {
+        $("#addCommentForm" + id).show();
+        $("#buttonShowAddComentForm" + id).hide();
+        $("#newCommentDescription" + id).focus();
+    }
+
+    function vote(id, voteType) {
+        console.log(JSON.stringify({id: id, itemType: voteType}));
+        $.ajax({
+            type: "POST",
+            contentType: "application/json",
+            url: "/vote",
+            data: JSON.stringify({id: id, itemType: voteType}),
+            dataType: 'json',
+            cache: false,
+            timeout: 600000,
+            success: function (data) {
+                console.log(data);
+                $("#" + data.voteType.toLowerCase() + 'Rating' + data.id).empty().append(data.rating);
+            },
+            error: function (e) {
+                console.log("ERROR : ", e.responseText);
+                console.log(JSON.stringify({id: id, itemType: voteType}));
+            }
+        });
+    }
+
+    function addComment(id) {
+        $.ajax({
+            type: "POST",
+            contentType: "application/json",
+            url: "/sendComment",
+            data: JSON.stringify({postId: id, commentDescription: $('#addCommentForm' + id).serializeArray()[0].value}),
+            dataType: 'json',
+            cache: false,
+            timeout: 600000,
+            success: function (data) {
+                console.log(data);
+                var postId = data["postId"];
+                var commentId = data["commentId"];
+                var commentDescription = data["commentDescription"];
+                var userNick = data["userNick"];
+                $("#newCommentDescription").val('');
+                $("#commentList" + postId).append('<li class="list-group-item">\n' +
+                    '                                <div class="row justify-content-between">\n' +
+                    '                                    <div class="col-4">\n' +
+                    '                                       <a href="/profile/' + userNick + '"><h5>' + userNick + '</h5></a>\n' +
+                    '                                    </div>\n' +
+                    '                                   <div class="col-2">\n' +
+                    '                                        <div class="row">\n' +
+                    '                                            <div class="col-9">\n' +
+                    '                                                <div class="float-right" id="commentRating' + commentId + '">\n' +
+                    '                                                    0 \n' +
+                    '                                                </div>\n' +
+                    '                                            </div>\n' +
+                    '                                            <div class="col-1">\n' +
+                    '                                                <div class="float-right">\n' +
+                    '                                                </div>\n' +
+                    '                                            </div>\n' +
+                    '                                        </div>\n' +
+                    '                                    </div>' +
+                    '                                </div>\n' +
+                    '                                <div>' + commentDescription + '\n' +
+                    '                                </div>\n' +
+                    '                        <div class="text-info">\n' +
+                    '                            ' + jQuery.format.date(new Date(), 'HH:mm dd-MM-yyyy') + '\n' +
+                    '                        </div>           ' +
+                    '                            </li>');
+
+            },
+            error: function (e) {
+                console.log("ERROR : ", e);
+            }
+        });
+    }
+
+</script>
+</body>
+</html>

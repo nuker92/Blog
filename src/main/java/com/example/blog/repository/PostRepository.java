@@ -29,4 +29,5 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "where u.nick = :userNick")
     List<Post> findAllUserPost(@Param("userNick") String userNick, Pageable p);
 
+
 }

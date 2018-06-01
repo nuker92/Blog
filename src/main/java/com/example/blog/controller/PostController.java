@@ -1,6 +1,7 @@
 package com.example.blog.controller;
 
 import com.example.blog.entity.Comment;
+import com.example.blog.entity.Post;
 import com.example.blog.service.IPostService;
 import com.example.blog.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +32,12 @@ public class PostController {
         this.userService = userService;
     }
 
-
-
     @RequestMapping(value = "post/{id}", method = RequestMethod.GET)
     public String postDetail(Model model, @PathVariable long id, Principal principal){
+        Post post = postService.findPostWithComments(id);
+        if (post == null) {
+            return "error";
+        }
         model.addAttribute("post", postService.findPostWithComments(id));
         String loggedUserNick = null;
         if (principal != null){

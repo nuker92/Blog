@@ -24,7 +24,7 @@
     </div>
 
     <div class="container-fluid bg-light py-3">
-        <h2 class="col-10 mx-auto" th:text="#{latestPosts}">Latest posts:</h2>
+        <h2 class="col-10 mx-auto" th:text="#{latestPosts}">Latest posts</h2>
         <ul class="list-group col-10 mx-auto py-3" id="postList">
             <li th:id="post + ${post.id}" class="list-group-item" th:each="post : ${posts}">
                 <div class="row justify-content-between">

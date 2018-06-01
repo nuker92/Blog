@@ -56,6 +56,9 @@ public class ProfileController {
     @RequestMapping("/profile/{userNick}")
     public String userProfile(@PathVariable String userNick, Principal principal, Model model){
         User user = userService.findUserByNick(userNick);
+        if (user == null) {
+            return "error";
+        }
         model.addAttribute("user", user);
         String loggedUserNick = null;
         if (principal != null){

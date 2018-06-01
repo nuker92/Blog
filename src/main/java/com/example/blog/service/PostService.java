@@ -4,9 +4,9 @@ import com.example.blog.entity.Comment;
 import com.example.blog.entity.Post;
 import com.example.blog.entity.tags.Tag;
 import com.example.blog.entity.tags.TagUsage;
+import com.example.blog.repository.*;
 import com.example.blog.restObjects.SimpleComment;
 import com.example.blog.restObjects.SimplePost;
-import com.example.blog.repository.*;
 import com.example.blog.utilities.PostUtilities;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -63,9 +63,13 @@ public class PostService implements IPostService {
 
     @Override
     public Post findPostWithComments(Long id) {
-        Post post = postRepository.findById(id).get();
-        post.setComments(commentRepository.findAllByPost(post));
-        return post;
+        Optional<Post> optionalPost = postRepository.findById(id);
+        if (optionalPost.isPresent()) {
+            Post post = optionalPost.get();
+            post.setComments(commentRepository.findAllByPost(post));
+            return post;
+        }
+        return null;
     }
 
     @Override

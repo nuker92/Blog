@@ -60,7 +60,7 @@
                         </div>
                     </div>
                 </div>
-                <div th:text="${post.description}">
+                <div th:id="postDescription + ${post.id}" th:text="${post.description}">
                 </div>
                 <div th:text="${#temporals.format(post.dateOfAddition, 'HH:mm dd-MM-yyyy')}"
                      class="text-info">
@@ -115,7 +115,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div th:text="${comment.description}">
+                                <div th:id="commentDescription + ${comment.id}" th:text="${comment.description}">
                                 </div>
                                 <div th:text="${#temporals.format(comment.dateOfAddition, 'HH:mm dd-MM-yyyy')}"
                                      class="text-info">
@@ -129,6 +129,17 @@
                                 <textarea class="form-control" th:id="'newCommentDescription' + ${post.id}"
                                           th:field="${comment.description}"></textarea>
                                 <small class="form-text text-muted" th:text="#{typeNewComment}">comment help</small>
+                                <div th:id="'newCommentToolbar' + ${post.id}" class="col-10 py-1 row">
+                                    <button type="button"
+                                            th:onclick="'addFormatingForBold(\'newCommentDescription' + ${post.id} + '\')'"
+                                            class="btn btn-outline-secondary btn-sm"><b>B</b></button>
+                                    <button type="button"
+                                            th:onclick="'addFormatingForItalic(\'newCommentDescription' + ${post.id} + '\')'"
+                                            class="btn btn-outline-secondary btn-sm"><b><i>I</i></b></button>
+                                    <button type="button"
+                                            th:onclick="'addFormatingForQuote(\'newCommentDescription' + ${post.id} + '\')'"
+                                            class="btn btn-outline-secondary btn-sm"><b>"</b></button>
+                                </div>
                             </div>
                             <div class="text-center">
                                 <button class="btn btn-primary" th:onclick="'addComment(' + ${post.id} +')'"
@@ -196,7 +207,7 @@
                 console.log(data);
                 var postId = data["postId"];
                 var commentId = data["commentId"];
-                var commentDescription = data["commentDescription"];
+                var commentDescription = markdown(data["commentDescription"]);
                 var userNick = data["userNick"];
                 $("#addCommentForm" + postId).hide();
                 $("#buttonShowAddComentForm" + postId).show();
@@ -239,7 +250,7 @@
         var userNick = href.slice(x + 1);
         $.ajax({
             contentType: "application/json",
-            url: "/loadMoreUserPosts?page=" + postsPageNumber + "&size=10&userNick=" + userNick,
+            url: "/loadMoreUserPosts?page=" + postsPageNumber + "&size=3&userNick=" + userNick,
             dataType: 'json',
             cache: false,
             timeout: 600000,
@@ -252,7 +263,7 @@
                 posts.forEach(function (post) {
                     console.log(post);
                     var postId = post["postId"];
-                    var postDescription = post["postDescription"];
+                    var postDescription = markdown(post["postDescription"]);
                     var postUserNick = post["userNick"];
                     var postRating = post["rating"];
                     var postDateOfAddition = post["dateOfAddition"];
@@ -316,7 +327,7 @@
                         '                <ul class="list-group" id="commentList' + postId + '">\n';
                     comments.forEach(function (comment) {
                         var commentId = comment["commentId"];
-                        var commentDescription = comment["commentDescription"];
+                        var commentDescription = markdown(comment["commentDescription"]);
                         var commentUserNick = comment["userNick"];
                         var commentRating = comment["rating"];
                         var commentDateOfAddition = comment["dateOfAddition"];
@@ -357,6 +368,11 @@
                         '                        <textarea class="form-control"\n' +
                         '                                  id="newCommentDescription' + postId + '" name="description"></textarea>\n' +
                         '                    <small class="form-text text-muted"">Type new comment</small>' +
+                        '                    <div id="newCommentToolbar' + postId + '" class="col-10 py-1 row">\n' +
+                        '                                    <button type="button" onclick="addFormatingForBold(\'newCommentDescription' + postId + '\')" class="btn btn-outline-secondary btn-sm"><b>B</b></button>\n' +
+                        '                                    <button type="button" onclick="addFormatingForItalic(\'newCommentDescription' + postId + '\')" class="btn btn-outline-secondary btn-sm"><b><i>I</i></b></button>\n' +
+                        '                                    <button type="button" onclick="addFormatingForQuote(\'newCommentDescription' + postId + '\')" class="btn btn-outline-secondary btn-sm"><b>"</b></button>\n' +
+                        '                    </div>' +
                         '                    </div>' +
                         '                    <div class="text-center">\n' +
                         '                        <button class="btn btn-primary" onclick="addComment(' + postId + ')"\n' +

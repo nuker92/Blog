@@ -36,7 +36,7 @@
                         </div>
                     </div>
                 </div>
-                <div th:text="${post.description}">
+                <div th:id="postDescription + ${post.id}" th:text="${post.description}">
                 </div>
                 <div th:text="${#temporals.format(post.dateOfAddition, 'HH:mm dd-MM-yyyy')}"
                      class="text-info">
@@ -83,7 +83,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div th:text="${comment.description}">
+                                <div th:id="commentDescription + ${comment.id}" th:text="${comment.description}">
                                 </div>
                                 <div th:text="${#temporals.format(comment.dateOfAddition, 'HH:mm dd-MM-yyyy')}"
                                      class="text-info">
@@ -97,6 +97,17 @@
                                 <textarea class="form-control" th:id="'newCommentDescription' + ${post.id}"
                                           th:field="${comment.description}"></textarea>
                                 <small class="form-text text-muted" th:text="#{typeNewComment}">comment help</small>
+                                <div th:id="'newCommentToolbar' + ${post.id}" class="col-10 py-1 row">
+                                    <button type="button"
+                                            th:onclick="'addFormatingForBold(\'newCommentDescription' + ${post.id} + '\')'"
+                                            class="btn btn-outline-secondary btn-sm"><b>B</b></button>
+                                    <button type="button"
+                                            th:onclick="'addFormatingForItalic(\'newCommentDescription' + ${post.id} + '\')'"
+                                            class="btn btn-outline-secondary btn-sm"><b><i>I</i></b></button>
+                                    <button type="button"
+                                            th:onclick="'addFormatingForQuote(\'newCommentDescription' + ${post.id} + '\')'"
+                                            class="btn btn-outline-secondary btn-sm"><b>"</b></button>
+                                </div>
                             </div>
                             <div class="text-center">
                                 <button class="btn btn-primary" th:onclick="'addComment(' + ${post.id} +')'"
@@ -156,9 +167,11 @@
                 console.log(data);
                 var postId = data["postId"];
                 var commentId = data["commentId"];
-                var commentDescription = data["commentDescription"];
+                var commentDescription = markdown(data["commentDescription"]);
                 var userNick = data["userNick"];
-                $("#newCommentDescription").val('');
+                $("#addCommentForm" + postId).hide();
+                $("#buttonShowAddComentForm" + postId).show();
+                $("#newCommentDescription" + postId).val('');
                 $("#commentList" + postId).append('<li class="list-group-item">\n' +
                     '                                <div class="row justify-content-between">\n' +
                     '                                    <div class="col-4">\n' +

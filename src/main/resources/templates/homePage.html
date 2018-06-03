@@ -15,12 +15,22 @@
                 <label for="description" th:text="#{typeNewPost}">Type Something</label>
                 <textarea class="form-control" id="description" rows="3" name="description" required="required"
                           th:field="${post.description}"
+                          onclick="showToolbar('newPostToolbar')"
                           onblur="check(this)" oninput="check(this)"></textarea>
+                <div style="display: none" id="newPostToolbar" class="col-10 py-1 row">
+                    <button type="button" onclick="addFormatingForBold('description')"
+                            class="btn btn-outline-secondary btn-sm"><b>B</b></button>
+                    <button type="button" onclick="addFormatingForItalic('description')"
+                            class="btn btn-outline-secondary btn-sm"><b><i>I</i></b></button>
+                    <button type="button" onclick="addFormatingForQuote('description')"
+                            class="btn btn-outline-secondary btn-sm"><b>"</b></button>
+                </div>
             </div>
             <div class="text-center">
                 <button type="submit" class="btn btn-primary" name="action" th:text="#{submit}">Submit</button>
             </div>
         </form>
+
     </div>
 
     <div class="container-fluid bg-light py-3">
@@ -38,7 +48,8 @@
                     <div class="col-2">
                         <div class="row">
                             <div class="col-10">
-                                <div class="float-right" th:id="postRating + ${post.id}" th:text="${post.rating.size()}">\
+                                <div class="float-right" th:id="postRating + ${post.id}"
+                                     th:text="${post.rating.size()}">\
                                     rating
                                 </div>
                             </div>
@@ -53,7 +64,7 @@
                         </div>
                     </div>
                 </div>
-                <div th:text="${post.description}">
+                <div th:id="postDescription + ${post.id}" th:text="${post.description}">
                 </div>
                 <div th:text="${#temporals.format(post.dateOfAddition, 'HH:mm dd-MM-yyyy')}"
                      class="text-info">
@@ -61,7 +72,7 @@
                 </div>
                 <div class="row py-2">
                     <div sec:authorize="isAuthenticated()" class="col-1">
-                        <button  class="btn btn-outline-primary btn-sm" th:id="'buttonShowAddComentForm' + ${post.id}"
+                        <button class="btn btn-outline-primary btn-sm" th:id="'buttonShowAddComentForm' + ${post.id}"
                                 th:text="#{reply}"
                                 th:onclick="'showAddComentForm(' + ${post.id} +')'">
                         </button>
@@ -93,7 +104,8 @@
                                     <div class="col-2">
                                         <div class="row">
                                             <div class="col-9">
-                                                <div class="float-right" th:id="commentRating + ${comment.id}" th:text="${comment.rating.size()}">\
+                                                <div class="float-right" th:id="commentRating + ${comment.id}"
+                                                     th:text="${comment.rating.size()}">\
                                                     rating
                                                 </div>
                                             </div>
@@ -108,7 +120,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div th:text="${comment.description}">
+                                <div th:id="commentDescription + ${comment.id}" th:text="${comment.description}">
                                 </div>
                                 <div th:text="${#temporals.format(comment.dateOfAddition, 'HH:mm dd-MM-yyyy')}"
                                      class="text-info">
@@ -120,8 +132,20 @@
                         <form style="display: none" th:id="addCommentForm + ${post.id}" th:object="${comment}">
                             <div class="form-group">
                                 <textarea class="form-control" th:id="'newCommentDescription' + ${post.id}"
-                                          th:field="${comment.description}"></textarea>
+                                          th:field="${comment.description}">
+                                </textarea>
                                 <small class="form-text text-muted" th:text="#{typeNewComment}">comment help</small>
+                                <div th:id="'newCommentToolbar' + ${post.id}" class="col-10 py-1 row">
+                                    <button type="button"
+                                            th:onclick="'addFormatingForBold(\'newCommentDescription' + ${post.id} + '\')'"
+                                            class="btn btn-outline-secondary btn-sm"><b>B</b></button>
+                                    <button type="button"
+                                            th:onclick="'addFormatingForItalic(\'newCommentDescription' + ${post.id} + '\')'"
+                                            class="btn btn-outline-secondary btn-sm"><b><i>I</i></b></button>
+                                    <button type="button"
+                                            th:onclick="'addFormatingForQuote(\'newCommentDescription' + ${post.id} + '\')'"
+                                            class="btn btn-outline-secondary btn-sm"><b>"</b></button>
+                                </div>
                             </div>
                             <div class="text-center">
                                 <button class="btn btn-primary" th:onclick="'addComment(' + ${post.id} +')'"
@@ -216,7 +240,7 @@
                 console.log(data);
                 var postId = data["postId"];
                 var commentId = data["commentId"];
-                var commentDescription = data["commentDescription"];
+                var commentDescription = markdown(data["commentDescription"]);
                 var userNick = data["userNick"];
                 $("#addCommentForm" + postId).hide();
                 $("#buttonShowAddComentForm" + postId).show();
@@ -256,7 +280,7 @@
     function loadMorePosts() {
         $.ajax({
             contentType: "application/json",
-            url: "/loadMorePosts?page=" + postsPageNumber + "&size=10",
+            url: "/loadMorePosts?page=" + postsPageNumber + "&size=3",
             dataType: 'json',
             cache: false,
             timeout: 600000,
@@ -269,7 +293,7 @@
                 posts.forEach(function (post) {
                     console.log(post);
                     var postId = post["postId"];
-                    var postDescription = post["postDescription"];
+                    var postDescription = markdown(post["postDescription"]);
                     var postUserNick = post["userNick"];
                     var postRating = post["rating"];
                     var postDateOfAddition = post["dateOfAddition"];
@@ -308,7 +332,7 @@
                         '                            ' + jQuery.format.date(postDateOfAddition, 'HH:mm dd-MM-yyyy') + '\n' +
                         '                </div>\n' +
                         '                    <div class="row py-2">\n';
-                    if (loggedUserName != null){
+                    if (loggedUserName != null) {
                         newContent += '                        <div class="col-1">\n' +
                             '                            <button class="btn btn-outline-primary btn-sm" id="buttonShowAddComentForm' + postId + '"\n' +
                             '                                    \n' +
@@ -318,22 +342,22 @@
                             '                        </div>\n';
                     }
                     newContent += '                        <div class="col-1">\n' +
-                    '                            <form action="/post/' + postId + '" >\n' +
-                    '                                <button class="btn btn-outline-primary btn-sm" type="submit">\n' +
-                    '                                    Open in new Window\n' +
-                    '                                </button>\n' +
-                    '                            </form>\n' +
-                    '                        </div>\n' +
-                    '                    </div>\n' +
-                    '                <br>\n' +
-                    '                <div class="row">\n' +
-                    '                    <div class="col-1">\n' +
-                    '                    </div>\n' +
-                    '                    <div class="col-11">' +
-                    '                <ul class="list-group" id="commentList' + postId + '">\n';
+                        '                            <form action="/post/' + postId + '" >\n' +
+                        '                                <button class="btn btn-outline-primary btn-sm" type="submit">\n' +
+                        '                                    Open in new Window\n' +
+                        '                                </button>\n' +
+                        '                            </form>\n' +
+                        '                        </div>\n' +
+                        '                    </div>\n' +
+                        '                <br>\n' +
+                        '                <div class="row">\n' +
+                        '                    <div class="col-1">\n' +
+                        '                    </div>\n' +
+                        '                    <div class="col-11">' +
+                        '                <ul class="list-group" id="commentList' + postId + '">\n';
                     comments.forEach(function (comment) {
                         var commentId = comment["commentId"];
-                        var commentDescription = comment["commentDescription"];
+                        var commentDescription = markdown(comment["commentDescription"]);
                         var commentUserNick = comment["userNick"];
                         var commentRating = comment["rating"];
                         var commentDateOfAddition = comment["dateOfAddition"];
@@ -346,7 +370,7 @@
                             '                        <div class="row">\n' +
                             '                           <div class="col-9">\n' +
                             '                            <div class="float-right" id="commentRating' + commentId + '"\n>' +
-                                                            commentRating +
+                            commentRating +
                             '                            </div>\n' +
                             '                        </div>\n' +
                             '                        <div class="col-1">\n' +
@@ -357,16 +381,16 @@
                                 '                             onclick="vote(' + commentId + ', \'COMMENT\')"/>';
                         }
                         newContent += '                                     </div>\n' +
-                        '                                            </div>\n' +
-                        '                                        </div>\n' +
-                        '                                    </div>\n' +
-                        '                                </div>' +
-                        '                        <div>\n' +
-                        '                            ' + commentDescription + '\n' +
-                        '                        </div>\n' +
-                        '                        <div class="text-info">\n' +
-                        '                            ' + jQuery.format.date(commentDateOfAddition, 'HH:mm dd-MM-yyyy') + '\n' +
-                        '                       </div>\n';
+                            '                                            </div>\n' +
+                            '                                        </div>\n' +
+                            '                                    </div>\n' +
+                            '                                </div>' +
+                            '                        <div>\n' +
+                            '                            ' + commentDescription + '\n' +
+                            '                        </div>\n' +
+                            '                        <div class="text-info">\n' +
+                            '                            ' + jQuery.format.date(commentDateOfAddition, 'HH:mm dd-MM-yyyy') + '\n' +
+                            '                       </div>\n';
                     });
                     newContent += '</ul>\n' +
                         '<form style="display: none" id="addCommentForm' + postId + '">\n' +
@@ -374,6 +398,11 @@
                         '                        <textarea class="form-control"\n' +
                         '                                  id="newCommentDescription' + postId + '" name="description"></textarea>\n' +
                         '                    <small class="form-text text-muted"">Type new comment</small>' +
+                        '                    <div id="newCommentToolbar' + postId + '" class="col-10 py-1 row">\n' +
+                        '                                    <button type="button" onclick="addFormatingForBold(\'newCommentDescription' + postId + '\')" class="btn btn-outline-secondary btn-sm"><b>B</b></button>\n' +
+                        '                                    <button type="button" onclick="addFormatingForItalic(\'newCommentDescription' + postId + '\')" class="btn btn-outline-secondary btn-sm"><b><i>I</i></b></button>\n' +
+                        '                                    <button type="button" onclick="addFormatingForQuote(\'newCommentDescription' + postId + '\')" class="btn btn-outline-secondary btn-sm"><b>"</b></button>\n' +
+                        '                    </div>' +
                         '                    </div>' +
                         '                    <div class="text-center">\n' +
                         '                        <button class="btn btn-primary" onclick="addComment(' + postId + ')"\n' +
@@ -392,6 +421,7 @@
             }
         });
     }
+
 
 </script>
 </body>

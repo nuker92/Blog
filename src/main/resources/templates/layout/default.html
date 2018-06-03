@@ -82,6 +82,59 @@
         }
     });
 
+    //formatting
+    $(window).on('load', function () {
+        applayMarkdownToAllPostsAndComments();
+    });
+
+    function applayMarkdownToAllPostsAndComments() {
+        $('[id^=postDescription]').each(function () {
+            var text = this.innerHTML;
+            var html = markdown(text);
+            this.innerHTML = html;
+        });
+        $('[id^=commentDescription]').each(function () {
+            var text = this.innerHTML;
+            var html = markdown(text);
+            this.innerHTML = html;
+        });
+
+    }
+
+    function markdown(text) {
+        var html = text;
+        // quote
+        html = html.replace(/(\')(?=\S)([^\r]*?\S[*]*)\1/g, '<blockquote style="color:grey;">"$2"</blockquote>');
+        // bold
+        html = html.replace(/(\*\*)(?=\S)([^\r]*?\S[*]*)\1/g, '<b>$2</b>');
+        // italic
+        html = html.replace(/(\*)(?=\S)([^\r]*?\S[*]*)\1/g, '<i>$2</i>');
+        //end of line
+        html = html.replace(/\n/g, '<br>');
+        //tags
+        html = html.replace(/(#)(?=\S)([a-zA-Z0-9]{1,})/g, ' #<a href="/tag/$2">$2</a> ');
+        return html;
+    }
+
+    function showToolbar(id) {
+        $('#' + id).show();
+    }
+
+    function addFormatingForBold(id) {
+        var textArea = $('#' + id);
+        textArea.val(textArea.val() + ' **Enter text, which you want to bold**');
+    }
+
+    function addFormatingForItalic(id) {
+        var textArea = $('#' + id);
+        textArea.val(textArea.val() + ' *Enter text, which you want to do italic*');
+    }
+
+    function addFormatingForQuote(id) {
+        var textArea = $('#' + id);
+        textArea.val(textArea.val() + ' \'Enter a quote here\'');
+    }
+
 </script>
 </body>
 </html>

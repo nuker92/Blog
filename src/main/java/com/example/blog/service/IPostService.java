@@ -9,7 +9,7 @@ public interface IPostService {
 
     void createPost(Post post, String userLogin);
 
-    List<Post> findAllPostsWithComments(int min, int max, List<String> criteria);
+    List<Post> findAllPostsWithComments(int page, int size, List<String> criteria);
 
     List<SimplePost> findAllSimplifiedPostsWithSimplifiedComments(int page, int size, List<String> criteria);
 

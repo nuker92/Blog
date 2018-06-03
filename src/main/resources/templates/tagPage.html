@@ -3,10 +3,10 @@
       xmlns:sec="http://www.w3.org/1999/xhtml"
       layout:decorator="layout/default">
 <head>
-    <meta charset="UTF-8"/>
-    <title>Search</title>
+    <title>Tag page</title>
 </head>
 <body>
+
 <div layout:fragment="content">
 
     <div class="container-fluid bg-light py-3">
@@ -23,7 +23,8 @@
                     <div class="col-2">
                         <div class="row">
                             <div class="col-10">
-                                <div class="float-right" th:id="postRating + ${post.id}" th:text="${post.rating.size()}">\
+                                <div class="float-right" th:id="postRating + ${post.id}"
+                                     th:text="${post.rating.size()}">\
                                     rating
                                 </div>
                             </div>
@@ -78,7 +79,8 @@
                                     <div class="col-2">
                                         <div class="row">
                                             <div class="col-9">
-                                                <div class="float-right" th:id="commentRating + ${comment.id}" th:text="${comment.rating.size()}">\
+                                                <div class="float-right" th:id="commentRating + ${comment.id}"
+                                                     th:text="${comment.rating.size()}">\
                                                     rating
                                                 </div>
                                             </div>
@@ -225,9 +227,7 @@
     var postsPageNumber = 1;
 
     function loadMorePosts() {
-        var tagCriteria = getUrlParameter("tagCriteria");
-        tagCriteria = tagCriteria.replace(/#/g, "%23");
-        tagCriteria = tagCriteria.replace(/@/g, "");
+        var tagCriteria = "%23" + getUrlParameter();
         $.ajax({
             contentType: "application/json",
             url: "/loadMorePosts?page=" + postsPageNumber + "&size=3&tagCriteria=" + tagCriteria,
@@ -282,7 +282,7 @@
                         '                            ' + jQuery.format.date(postDateOfAddition, 'HH:mm dd-MM-yyyy') + '\n' +
                         '                </div>\n' +
                         '                    <div class="row py-2">\n';
-                    if (loggedUserName != null){
+                    if (loggedUserName != null) {
                         newContent += '                        <div class="col-1">\n' +
                             '                            <button class="btn btn-outline-primary btn-sm" id="buttonShowAddComentForm' + postId + '"\n' +
                             '                                    \n' +
@@ -372,20 +372,15 @@
         });
     }
 
-    function getUrlParameter(sParam) {
-        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
-            sURLVariables = sPageURL.split('&');
-
-        for (var i = 0; i < sURLVariables.length; i++) {
-            var sParameterName = sURLVariables[i].split('=');
-            if (sParameterName[0] == sParam) {
-                return sParameterName[1];
-            }
-        }
+    function getUrlParameter() {
+        var url = $(location).attr('href');
+        return url.substr(url.lastIndexOf('/') + 1);
     }
 
 
 </script>
+
+</body>
 
 </body>
 </html>

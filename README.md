@@ -50,9 +50,9 @@ You can change it if you want.
 ## Project will be develope in future. 
 
 TODO list:
-* Tag page.
+* ~~Tag page~~.
 * Image support.
-* Support formating in post/comment.
+* ~~Support formating in post/comment~~.
 * Add support for Polish.
 * Private messages between users.
 * Create automation tests.
